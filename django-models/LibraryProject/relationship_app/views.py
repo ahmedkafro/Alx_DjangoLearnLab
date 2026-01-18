@@ -12,7 +12,11 @@ def list_books(request):
 class LibraryDetailView(DetailView):
     model = Library
     template_name = 'relationship_app/library_detail.html'
+<<<<<<< HEAD
     context_object_name = 'library'
 
 
 # Create your views here.
+=======
+    context_object_name = 'library'
+>>>>>>> edc3c0a (add update)
