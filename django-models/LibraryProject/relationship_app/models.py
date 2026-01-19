@@ -33,7 +33,24 @@ class Book(models.Model):
     def __str__(self):
         return self.title
 
+class Librarian(models.Model):
+    name = models.CharField(max_length=100)
 
+    def __str__(self):
+        return self.name
+
+
+class Library(models.Model):
+    name = models.CharField(max_length=100)
+    books = models.ManyToManyField(Book, related_name='libraries')
+    librarian = models.OneToOneField(
+        Librarian,
+        on_delete=models.CASCADE
+    )
+
+    def __str__(self):
+        return self.name
+        
 # ManyToMany relationship
 class Student(models.Model):
     name = models.CharField(max_length=100)
