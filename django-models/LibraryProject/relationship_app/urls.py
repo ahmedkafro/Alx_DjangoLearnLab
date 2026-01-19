@@ -8,6 +8,16 @@ from .views import list_books, LibraryDetailView
 from django.contrib.auth.views import LoginView, LogoutView
 from . import views
 
+#from django.urls import path
+#from .views import admin_view, librarian_view, member_view
+
+urlpatterns = [
+    # ... existing urls ...
+   path('admin/', admin_view, name='admin_view'),
+    path('librarian/', librarian_view, name='librarian_view'),
+    path('member/', member_view, name='member_view'),
+]
+
 urlpatterns = [
     # Built-in views for login and logout
     path('login/', LoginView.as_view(template_name='relationship_app/login.html'), name='login'),
@@ -25,9 +35,8 @@ urlpatterns = [
     path('books/', list_books, name='list_books'),
     path('library/<int:pk>/', LibraryDetailView.as_view(), name='library_detail'),
 ]
-urlpatterns = [
+##urlpatterns = [
     # ... existing urls ...
-    path('admin/', admin_view, name='admin_view'),
-    path('librarian/', librarian_view, name='librarian_view'),
-    path('member/', member_view, name='member_view'),
-]
+  #  path('admin/', admin_view, name='admin_view'),
+  #  path('librarian/', librarian_view, name='librarian_view'),
+   # path('member/', member_view, name='member_view'),]
