@@ -126,3 +126,68 @@ SESSION_COOKIE_SECURE = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = "static/"
+SECURE_HSTS_SECONDS = 31536000 
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+# --- Secure Cookies ---
+# Ensure cookies are only sent over HTTPS connections
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+# --- Security Headers ---
+# Prevent clickjacking by forbidding the site from being rendered in an iframe
+X_FRAME_OPTIONS = 'DENY'
+
+# Prevent the browser from guessing the content type (MIME sniffing)
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# Enable browser's XSS filtering
+SECURE_BROWSER_XSS_FILTER = True
+
+# Trust the X-Forwarded-Proto header from the proxy (Nginx/Heroku)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Prevent JavaScript from accessing session cookies
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = True  # Optional: CSRF cookie is readable by JS if needed
+
+# Ensure cookies are only sent over HTTPS
+SESSION_COOKIE_SAMESITE = 'Lax'  # 'Strict' can be used if your app is entirely first-party
+CSRF_COOKIE_SAMESITE = 'Lax'
+
+# Clickjacking protection
+X_FRAME_OPTIONS = 'DENY'  # Prevents your site from being embedded in an iframe
+
+# Prevent MIME type sniffing
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# Enable XSS filtering in modern browsers
+SECURE_BROWSER_XSS_FILTER = True
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+server {
+    listen 80;
+    server_name yourdomain.com www.yourdomain.com;
+    return 301 https://$host$request_uri;  # Redirect all HTTP to HTTPS
+}
+
+server {
+    listen 443 ssl;
+    server_name yourdomain.com www.yourdomain.com;
+
+    ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
+
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;  # your Django app
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
