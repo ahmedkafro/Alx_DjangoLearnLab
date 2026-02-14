@@ -24,3 +24,13 @@
 
 {% endblock %}
 
+<p>
+    {% for tag in post.tags.all %}
+        <a href="{% url 'posts-by-tag' tag.name %}">
+            #{{ tag.name }}
+        </a>
+    {% endfor %}
+</p>
+
+
+

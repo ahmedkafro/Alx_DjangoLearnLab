@@ -2,7 +2,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from .forms import RegisterForm, UserUpdateForm
+from .forms import PostForm, RegisterForm, UserUpdateForm
 from .models import Comment , Post
 from .forms import CommentForm
 from django.shortcuts import get_object_or_404
@@ -10,7 +10,32 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import UpdateView, DeleteView
 from django.urls import reverse
 from django.views.generic import CreateView
+from django.db.models import Q
 
+
+class PostsByTagView(ListView):
+    model = Post
+    template_name = "blog/post_list.html"
+    context_object_name = "posts"
+
+    def get_queryset(self):
+        return Post.objects.filter(
+            tags__name=self.kwargs["tag_name"]
+        ).order_by("-published_date")
+        
+class SearchResultsView(ListView):
+    model = Post
+    template_name = "blog/search_results.html"
+    context_object_name = "posts"
+
+    def get_queryset(self):
+        query = self.request.GET.get("q")
+        return Post.objects.filter(
+            Q(title__icontains=query) |
+            Q(content__icontains=query) |
+            Q(tags__name__icontains=query)
+        ).distinct().order_by("-published_date")
+                
 def register_view(request):
     if request.method == "POST":
         form = RegisterForm(request.POST)
@@ -69,7 +94,8 @@ class PostCreateView(LoginRequiredMixin, CreateView):
     fields = ["title", "content"]
     template_name = "blog/post_form.html"
     success_url = reverse_lazy("post-list")
-
+    form_class = PostForm
+ 
     def form_valid(self, form):
         form.instance.author = self.request.user
         return super().form_valid(form)
