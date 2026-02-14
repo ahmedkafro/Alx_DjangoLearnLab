@@ -2,7 +2,7 @@ from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
 from .views import PostsByTagView, SearchResultsView
-
+from .views import PostByTagListView
 from .views import (
     CommentCreateView,
     PostListView,
@@ -44,7 +44,7 @@ urlpatterns = [
     path("search/", SearchResultsView.as_view(), name="search-results"),
     path(
         "tags/<slug:tag_slug>/",
-        PostsByTagView.as_view(),
+        PostByTagListView.as_view(),
         name="posts-by-tag",
     ),
 ]
