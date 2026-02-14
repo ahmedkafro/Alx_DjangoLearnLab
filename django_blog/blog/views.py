@@ -3,12 +3,13 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from .forms import RegisterForm, UserUpdateForm
-from .models import Comment
+from .models import Comment , Post
 from .forms import CommentForm
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import UpdateView, DeleteView
 from django.urls import reverse
+from django.views.generic import CreateView
 
 def register_view(request):
     if request.method == "POST":
@@ -116,6 +117,27 @@ def add_comment(request, pk):
 
 
 # Update Comment
+from django.views.generic import CreateView
+from django.shortcuts import get_object_or_404
+from django.urls import reverse
+from django.contrib.auth.mixins import LoginRequiredMixin
+from .models import Comment, Post
+from .forms import CommentForm
+
+
+class CommentCreateView(LoginRequiredMixin, CreateView):
+    model = Comment
+    form_class = CommentForm
+    template_name = "blog/comment_form.html"
+
+    def form_valid(self, form):
+        post = get_object_or_404(Post, pk=self.kwargs["pk"])
+        form.instance.post = post
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse("post-detail", kwargs={"pk": self.kwargs["pk"]})
 class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Comment
     form_class = CommentForm
